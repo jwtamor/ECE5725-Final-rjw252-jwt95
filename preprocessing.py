@@ -14,24 +14,30 @@ freqs = np.fft.rfftfreq(n, d=timestep)
 
 LOW_STATIC_RANGE = 1
 
-# ~ below_20 = np.asarray([1 if f > 20 else 0 for f in freqs])
-# ~ above_20000 = np.asarray([1 if f < 17000 else 0 for f in freqs])
-# ~ audio_band = above_20000
+below_20 = np.asarray([1 if f > 20 else 0 for f in freqs])
+above_20000 = np.asarray([1 if f < 17000 else 0 for f in freqs])
+audio_band = above_20000
 
 low_pass = np.asarray([1 if f < 200 else 0 for f in freqs])
-bass_boost = np.asarray([1 if f > 200 else 0.1 for f in freqs])
-high_pass = np.asarray([1.25 if f > 2000 or f < LOW_STATIC_RANGE else 0 for f in freqs])
-high_boost = np.asarray([1 if f > 2000 else 0.25 for f in freqs])
+bass_boost = np.asarray([1 if f < 200 else 0.1 for f in freqs])
+
+mid_pass = np.asarray([1 if 200 < f and f < 2000 else 0 for f in freqs])
+mid_boost = np.asarray([1 if 200 < f and f < 2000 else .1 for f in freqs])
+
+high_pass = np.asarray([1 if f > 2000 else 0 for f in freqs])
+high_boost = np.asarray([1.25 if f > 2000 else 0.25 for f in freqs])
+
+cut_off = np.zeros(len(freqs))
 	
 def unpack(frame):
 	res = int.from_bytes(frame, 'little', signed = True) >> 4
-	return res + 2048
+	return res
 	
 def chunk_frames(frame_array, length):
 	return [frame_array[i:i+length] for i in range(0, len(frame_array),length)]
 	
 def process_fft(chunk):
-	return fft.rfftn(chunk)
+	return fft.rfftn(chunk) * audio_band
 	
 def make_buckets(song):
 	song_bytes = song.readframes(song.getnframes())
@@ -43,7 +49,7 @@ def change_volume(bucket, percent):
 	return bucket * (percent / 100)
 
 def process(bucket):
-	return fft.irfft(bucket)
+	return fft.irfft(bucket) + 2048
 	
 if __name__ == '__main__':
 	try:
@@ -53,7 +59,10 @@ if __name__ == '__main__':
 		buckets = make_buckets(song)
 		print("Starting...")
 		for i, bucket in enumerate(buckets):
-			processed = process(bucket*high_pass)
+			if i < 750:
+				processed = process(bucket)
+			else:
+				processed = process(bucket*mid_pass)
 			for frame in processed:
 				#print("Writing...")
 				output = 0x3000 | int(frame)
