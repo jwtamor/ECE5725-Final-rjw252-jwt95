@@ -1,0 +1,7 @@
+#!/bin/bash
+
+taskset -c 0 sudo python /home/pi/FINAL_RJW252_JWT95/preprocessing_queue.py &
+
+taskset -c 1 sudo python /home/pi/FINAL_RJW252_JWT95/interface_queue.py
+
+pkill -f preprocessing.py
