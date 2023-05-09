@@ -29,7 +29,7 @@ def main(q,p):
         GPIO.add_event_detect(pin, GPIO.FALLING, callback=GPIO_callback)
 
     os.putenv('SDL_VIDEODRIVER','fbcon')
-    os.putenv('SDL_FBDEV','/dev/fb1')
+    os.putenv('SDL_FBDEV','/dev/fb0')
     os.putenv('SDL_MOUSEDRV','TSLIB')
     os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
 
@@ -38,7 +38,7 @@ def main(q,p):
     fps = 48
     clock = pygame.time.Clock()
 
-    pygame.mouse.set_visible(True)
+    pygame.mouse.set_visible(False)
 
     size = width, height = 320, 240
     speed = [2,2]
@@ -199,7 +199,7 @@ def main(q,p):
     pygame.event.set_allowed(MOUSEBUTTONUP)
 
     start_time = time.clock_gettime(time.CLOCK_MONOTONIC)
-    while (time.clock_gettime(time.CLOCK_MONOTONIC) <= (start_time + 1200)):
+    while (True):
         # ~ time.sleep(0.005)
         clock.tick(fps)
         pygame.event.wait()
