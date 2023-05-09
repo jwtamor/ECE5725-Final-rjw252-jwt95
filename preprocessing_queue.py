@@ -61,14 +61,14 @@ t = 50
 	
 def main(q,p):
 	global v, b, m, t
-	
+	while not q.empty():
+		q.get()
 	# ~ print(q.get())
 	get = ''
 	try:
 		song_name = None
 		while song_name is None:
 			song_name = q.get()
-
 		song = None
 		while song is None:
 			if song_name == 'Quit':
