@@ -134,7 +134,9 @@ def main(q,p):
 
 		def process(bucket):
 			return fft.irfft(bucket) + 2048
-			
+		
+		back_flag = False
+		
 		spi = spidev.SpiDev()
 		spi.open(1,0)
 		spi.max_speed_hz = 3000000
@@ -146,6 +148,7 @@ def main(q,p):
 				get = q.get()
 				# ~ print(get)
 				if get == 'back':
+					back_flag = True
 					break
 				elif get == 'Quit':
 					sys.exit()
@@ -166,6 +169,9 @@ def main(q,p):
 		song.close()
 		spi.close()
 		
+		while not back_flag:
+			if q.get() == 'back':
+				back_flag = True
 		main(q,p)
 	except KeyboardInterrupt:
 		song.close()

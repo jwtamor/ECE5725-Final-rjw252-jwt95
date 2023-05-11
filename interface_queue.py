@@ -29,7 +29,7 @@ def main(q,p):
         GPIO.add_event_detect(pin, GPIO.FALLING, callback=GPIO_callback)
 
     os.putenv('SDL_VIDEODRIVER','fbcon')
-    os.putenv('SDL_FBDEV','/dev/fb0')
+    os.putenv('SDL_FBDEV','/dev/fb1')
     os.putenv('SDL_MOUSEDRV','TSLIB')
     os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
 
