@@ -9,15 +9,23 @@ import sys
 from pygame.locals import *
 import multiprocessing as mp
 
-ctx = mp.get_context('spawn')
-q = ctx.Queue()
-p = ctx.Queue()
+"""
+Rosie Wildermuth (rjw252) and Jacob Tamor (jwt95)
+Final Project: RPi DJ
+04/11/2023
+This code runs the GUI for the RPi DJ project. It initializes to a main menu
+screen that has 8 song option buttons to choose from. When a song is chosen,
+the screen changes to a loading screen that waits for a signal to advance to
+the song control page. When that page is brought up, the user can control the
+audio playback of a song by pressing buttons on their side of four bars.
+All communication and control is done through shared queues with the preprocessing
+code.
+"""
 
-def main(q,p):
-    # ~ q.put('sent')
+def main(q,p): # Main Function of interface_queue
     quit_flag = False
 
-    def GPIO_callback(channel):
+    def GPIO_callback(channel):	# piTFT Button Quit
         global quit_flag
         GPIO.cleanup()
         quit_flag = True
@@ -25,20 +33,21 @@ def main(q,p):
     pins = [4,26,17,22,23,27]
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(pins, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    for pin in pins:
+    for pin in pins:	# Setup GPIO event for quit
         GPIO.add_event_detect(pin, GPIO.FALLING, callback=GPIO_callback)
 
-    # ~ os.putenv('SDL_VIDEODRIVER','fbcon')
-    # ~ os.putenv('SDL_FBDEV','/dev/fb1')
-    # ~ os.putenv('SDL_MOUSEDRV','TSLIB')
-    # ~ os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
+	# Set up for piTFT
+    os.putenv('SDL_VIDEODRIVER','fbcon')
+    os.putenv('SDL_FBDEV','/dev/fb1')
+    os.putenv('SDL_MOUSEDRV','TSLIB')
+    os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
 
     pygame.init()
 
     fps = 48
     clock = pygame.time.Clock()
 
-    pygame.mouse.set_visible(True)
+    pygame.mouse.set_visible(False)
 
     size = width, height = 320, 240
     speed = [2,2]
@@ -53,6 +62,7 @@ def main(q,p):
     font_big = pygame.font.Font(None, 50)
     screen.fill(black)
     
+    # Draw initial main menu rectangles
     pygame.draw.rect(screen, (0,255,0), pygame.Rect(20, 65, 80, 30)) # closer rectangle
     pygame.draw.rect(screen, (255,0,0), pygame.Rect(195, 65, 80, 30)) # A440 rectangle
     pygame.draw.rect(screen, (0,0,255), pygame.Rect(20, 100, 80, 30)) # Song 3 rectangle
@@ -176,6 +186,7 @@ def main(q,p):
     welcome_rect = welcome_surface.get_rect(center=(160, 20))
     screen.blit(welcome_surface, welcome_rect)
 
+	# Initialize song select flags
     song1_flag = False
     song2_flag = False
     song3_flag = False
@@ -189,6 +200,7 @@ def main(q,p):
 
     start_flag = True
 
+	# Initialize counters
     volume_counter = 50
     bass_counter = 50
     treble_counter = 50
@@ -297,7 +309,7 @@ def main(q,p):
         
         # flags for different conditions
         if not start_flag:
-            if ready_flag: # allow for animations
+            if ready_flag: # allow for animations and go to Playback Screen
                 screen.blit(back_surface, back_rect)
                 screen.blit(quit_surface, quit_rect)
                 # Volume Display
@@ -356,7 +368,7 @@ def main(q,p):
             screen.blit(song8_surface, song8_rect)
             screen.blit(songstart_surface, songstart_rect)
             screen.blit(welcome_surface, welcome_rect)
-        if ready_flag:
+        if ready_flag: # Display what song is playing
             if song1_flag:
                 screen.blit(song1playing_surface, song1playing_rect)
             if song2_flag:
@@ -374,7 +386,7 @@ def main(q,p):
             if song8_flag:
                 screen.blit(song8playing_surface, song8playing_rect)
         pygame.display.flip()
-        if not start_flag and not ready_flag:
+        if not start_flag and not ready_flag: # Wait for ready to advance from Load Screen
             read = ''
             read = p.get()
             pygame.event.post(pygame.event.Event(MOUSEBUTTONUP))
