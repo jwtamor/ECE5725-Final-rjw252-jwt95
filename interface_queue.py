@@ -28,17 +28,17 @@ def main(q,p):
     for pin in pins:
         GPIO.add_event_detect(pin, GPIO.FALLING, callback=GPIO_callback)
 
-    os.putenv('SDL_VIDEODRIVER','fbcon')
-    os.putenv('SDL_FBDEV','/dev/fb1')
-    os.putenv('SDL_MOUSEDRV','TSLIB')
-    os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
+    # ~ os.putenv('SDL_VIDEODRIVER','fbcon')
+    # ~ os.putenv('SDL_FBDEV','/dev/fb1')
+    # ~ os.putenv('SDL_MOUSEDRV','TSLIB')
+    # ~ os.putenv('SDL_MOUSEDEV','/dev/input/touchscreen')
 
     pygame.init()
 
     fps = 48
     clock = pygame.time.Clock()
 
-    pygame.mouse.set_visible(False)
+    pygame.mouse.set_visible(True)
 
     size = width, height = 320, 240
     speed = [2,2]

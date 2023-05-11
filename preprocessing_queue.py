@@ -127,7 +127,7 @@ def main(q,p):
 			song_bytes = song.readframes(song.getnframes())
 			frame_list = [unpack(song_bytes[i:i+2]) for i in range(0, len(song_bytes),2)]
 			buckets = [process_fft(chunk) for chunk in chunk_frames(frame_list, n)]
-			return buckets
+			return buckets[:-1]
 
 		def change_volume(bucket, percent):
 			return bucket * (percent / 100)
@@ -162,16 +162,19 @@ def main(q,p):
 					t = int(get[1:])
 			processed = process(change_volume(bucket * modulate(b,m,t), v))
 			for frame in processed:
-				#print("Writing...")
+				# ~ print("Writing...")
 				output = 0x3000 | int(frame)
 				output_bytes = (output).to_bytes(2, 'big', signed=True)
 				spi.writebytes(output_bytes)
 		song.close()
-		spi.close()
 		
+		print(back_flag)
 		while not back_flag:
-			if q.get() == 'back':
+			get = q.get()
+			if get == 'back':
+				print(get =='back')
 				back_flag = True
+		spi.close()
 		main(q,p)
 	except KeyboardInterrupt:
 		song.close()
