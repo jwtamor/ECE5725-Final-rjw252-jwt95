@@ -87,7 +87,7 @@ def main(q,p):	# Preprocessing Main Function
 		
 		# Unpack Frames	
 		def unpack(frame):
-			res = int.from_bytes(frame, 'little', signed = True) >> 4
+			res = int.from_bytes(frame, 'little', signed = True) & 0x0FFF
 			return res
 		
 		# Chunk Frames	
