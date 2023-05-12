@@ -87,7 +87,7 @@ def main(q,p):	# Preprocessing Main Function
 		
 		# Unpack Frames	
 		def unpack(frame):
-			res = int.from_bytes(frame, 'little', signed = True) & 0x0FFF
+			res = int.from_bytes(frame, 'little', signed = True)
 			return res
 		
 		# Chunk Frames	
@@ -142,7 +142,7 @@ def main(q,p):	# Preprocessing Main Function
 			processed = process(change_volume(bucket * modulate(b,m,t), v))
 			for frame in processed: 	# Output Bucket
 				# ~ print("Writing...")
-				output = 0x3000 | int(frame)
+				output = 0x3000 | (int(frame) & 0x0FFF)
 				output_bytes = (output).to_bytes(2, 'big', signed=True)
 				spi.writebytes(output_bytes)
 		song.close()
