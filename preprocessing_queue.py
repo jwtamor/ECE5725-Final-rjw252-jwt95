@@ -142,7 +142,7 @@ def main(q,p):	# Preprocessing Main Function
 			processed = process(change_volume(bucket * modulate(b,m,t), v))
 			for frame in processed: 	# Output Bucket
 				# ~ print("Writing...")
-				output = 0x3000 | (int(frame) & 0x0FFF)
+				output = 0x3000 | (int(frame) >> 4)
 				output_bytes = (output).to_bytes(2, 'big', signed=True)
 				spi.writebytes(output_bytes)
 		song.close()
